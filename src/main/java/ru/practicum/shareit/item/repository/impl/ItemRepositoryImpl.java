@@ -26,11 +26,7 @@ public class ItemRepositoryImpl extends BaseRepository<Item> implements ItemRepo
     private static final String UPDATE_DESCRIPTION = "UPDATE item SET description = ? WHERE id = ?";
     private static final String UPDATE_AVAILABLE = "UPDATE item SET available = ? WHERE id = ?";
     private static final String DELETE_QUERY = "DELETE FROM item WHERE id=?";
-    private static final String SEARCH_ITEM_BY_NAME =
-            """
-                    SELECT * FROM item 
-                    WHERE UPPER(name) LIKE CONCAT('%',?,'%') OR UPPER(description) LIKE CONCAT('%',?,'%')
-                    """;
+    private static final String SEARCH_ITEM_BY_NAME = "SELECT * FROM item WHERE UPPER(name) LIKE CONCAT('%',?,'%') OR UPPER(description) LIKE CONCAT('%',?,'%')";
     private static final String FIND_ID_ITEMS_USER = "SELECT item_id FROM user_items WHERE user_id = ?";
 
     public ItemRepositoryImpl(JdbcTemplate jdbc, RowMapper<Item> mapper) {
