@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface ItemRepository {
-    void save(Item item, long userId);
+    void save(Item item);
 
     void update(Item item);
 

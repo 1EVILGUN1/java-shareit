@@ -33,7 +33,8 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("Пользователь с ID " + userId + " не найден!");
         }
         Item item = ItemMapper.mapToItem(itemDto);
-        itemRepository.save(item, userId);
+        item.setUserId(userId);
+        itemRepository.save(item);
         return ItemMapper.mapToItemDto(item);
     }
 
@@ -44,8 +45,12 @@ public class ItemServiceImpl implements ItemService {
         if (!userService.findById(userId).getItems().contains(itemId)) {
             throw new ValidationException("Пользователь с ID: " + userId + " не владеет вещью с ID: " + itemId);
         }
-        Item item = ItemMapper.mapToItem(itemDto);
-        item.setId(itemId);
+        Item itemUpdate = ItemMapper.mapToItem(itemDto);
+        itemUpdate.setId(itemId);
+        Item item = itemRepository.findById(itemId);
+        if (itemUpdate.getName() != null) item.setName(itemUpdate.getName());
+        if (itemUpdate.getDescription() != null) item.setDescription(itemUpdate.getDescription());
+        if (itemUpdate.getAvailable() != null) item.setAvailable(itemUpdate.getAvailable());
         itemRepository.update(item);
         Item updatedItem = itemRepository.findById(itemId);
         return ItemMapper.mapToItemDto(updatedItem);

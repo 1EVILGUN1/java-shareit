@@ -14,6 +14,7 @@ import java.util.*;
 public class UserRepositoryImpl implements UserRepository {
     private long counterId = 0;
     private final Map<Long, User> users = new HashMap<>();
+    private final Set emailUniqSet = new HashSet<>();
 
 
     @Override
@@ -32,9 +33,13 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
-        final long id = ++counterId;
-        user.setId(id);
-        users.put(id, user);
+        final String email = user.getEmail();
+        if (emailUniqSet.contains(email)) {
+            throw new IllegalArgumentException("Пользователь с Email: " + email + " уже зарегистрирован");
+        }
+        user.setId(++counterId);
+        users.put(user.getId(), user);
+        emailUniqSet.add(email);
         return user;
     }
 

@@ -34,9 +34,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto save(UserDto userDto) {
         User user = UserMapper.mapToUser(userDto);
-        if (userRepository.getAll().contains(user)) {
-            throw new IllegalArgumentException("Пользователь с таким email уже существует!");
-        }
         return UserMapper.mapToUserDto(userRepository.save(user));
     }
 
