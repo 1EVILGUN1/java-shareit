@@ -9,7 +9,6 @@ import lombok.Data;
 public class ItemDto {
     private Long id;
     @NotBlank(message = "Имя не может быть пустым!")
-    @NotNull(message = "Имя не может быть пустым!")
     private String name;
     @NotNull(message = "Описание не может быть пустым!")
     private String description;

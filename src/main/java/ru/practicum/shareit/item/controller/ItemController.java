@@ -57,8 +57,9 @@ public class ItemController {
     @ResponseStatus(HttpStatus.OK)
     public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Получен запрос GET на вывод всех предметов пользователя с ID: {}", userId);
-        log.info("Вывод всех предметов пользователя с ID: {}", userId);
-        return itemService.getItems(userId);
+        List<ItemDto> items = itemService.getItems(userId);
+        log.info("Вывод всех предметов пользователя с ID: {}, {}", userId, items);
+        return items;
     }
 
     @DeleteMapping("/{itemId}")
@@ -76,8 +77,10 @@ public class ItemController {
     public Collection<ItemDto> searchItemByText(@RequestParam Optional<String> text) {
         if (text.isPresent()) {
             log.info("Получен запрос GET на получение предметов по результатам поиска: {}", text);
+            Collection<ItemDto> itemByText = itemService.searchItemByName(text.get());
             log.info("Вывод предметов вывод предметов связанных с {}", text);
-            return itemService.searchItemByName(text.get());
+            itemByText.stream().toList().forEach(System.out::println);
+            return itemByText;
         }
         throw new IllegalArgumentException("Ошибка!");
     }

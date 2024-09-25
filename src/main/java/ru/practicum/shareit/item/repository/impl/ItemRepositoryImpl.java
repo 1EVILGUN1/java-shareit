@@ -14,14 +14,13 @@ import java.util.*;
 public class ItemRepositoryImpl implements ItemRepository {
     private long counterId = 0;
     private final Map<Long, Item> items = new HashMap<>();
-    private final Map<Long, Long> itemsUser = new HashMap<>();
 
     @Override
     public void save(Item item, long userId) {
         final long id = ++counterId;
         item.setId(id);
+        item.setUserId(userId);
         items.put(id, item);
-        itemsUser.put(id, userId);
     }
 
     @Override
@@ -53,9 +52,9 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Collection<Item> getItemsUser(long userId) {
         Collection<Item> itemsUsers = new ArrayList<>();
-        for (Map.Entry<Long, Long> entry : itemsUser.entrySet()) {
-            if (entry.getValue() == userId) {
-                itemsUsers.add(items.get(entry.getKey()));
+        for (Item item : items.values()) {
+            if (item.getUserId() == userId) {
+                itemsUsers.add(item);
             }
         }
         return itemsUsers;
@@ -65,7 +64,6 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public void delete(long itemId) {
         items.remove(itemId);
-        itemsUser.remove(itemId);
     }
 
     @Override
@@ -84,9 +82,9 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public List<Long> getIdItemsUser(long userId) {
         List<Long> itemUser = new ArrayList<>();
-        for (Map.Entry<Long, Long> entry : itemsUser.entrySet()) {
-            if (entry.getValue() == userId) {
-                itemUser.add(entry.getKey());
+        for (Item item : items.values()) {
+            if (item.getUserId() == userId) {
+                itemUser.add(item.getId());
             }
         }
         return itemUser;
