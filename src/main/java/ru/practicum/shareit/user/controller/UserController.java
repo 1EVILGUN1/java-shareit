@@ -6,14 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.controller.mapper.model.UserDto;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.Collection;
 
 @Slf4j
 @RestController
-@ResponseStatus(HttpStatus.BAD_REQUEST)
 @RequiredArgsConstructor
 @RequestMapping(path = "/users")
 public class UserController {
@@ -28,7 +27,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<UserDto> update(@Valid @RequestBody UserDto user,
+    public ResponseEntity<UserDto> update(@RequestBody UserDto user,
                                           @PathVariable long userId) {
         log.info("Получен запрос PATCH на обновление данных пользователя с ID: {}", userId);
         UserDto userDto = userService.update(userId, user);
@@ -38,10 +37,11 @@ public class UserController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Collection<UserDto> getAll() {
+    public ResponseEntity<Collection<UserDto>> getAll() {
         log.info("Получен запрос GET на получение всех пользователей");
-        log.info("Вывод всех пользователей");
-        return userService.getAll();
+        Collection<UserDto> users = userService.getAll();
+        log.info("Вывод всех пользователей = " + users);
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @GetMapping("/{userId}")

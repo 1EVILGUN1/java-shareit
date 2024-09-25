@@ -1,7 +1,7 @@
-package ru.practicum.shareit.user.controller.mapper;
+package ru.practicum.shareit.user.mapper;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.user.controller.mapper.model.UserDto;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;

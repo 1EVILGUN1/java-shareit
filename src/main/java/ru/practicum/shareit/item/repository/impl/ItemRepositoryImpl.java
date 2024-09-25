@@ -1,10 +1,8 @@
 package ru.practicum.shareit.item.repository.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.base.BaseRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 
@@ -12,75 +10,85 @@ import java.util.*;
 
 @Slf4j
 @Repository
-public class ItemRepositoryImpl extends BaseRepository<Item> implements ItemRepository {
-    private static final String FIND_ALL_ITEMS_QUERY =
-            """
-                    SELECT * FROM item AS i
-                    JOIN user_items AS ui ON i.id = ui.item_id
-                    WHERE ui.user_id = ?
-                    """;
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM item WHERE id = ?";
-    private static final String INSERT_QUERY = "INSERT INTO item (name, description, available) VALUES (?, ?, ?)";
-    private static final String INSERT_ITEM_USER_QUERY = "INSERT INTO user_items (user_id, item_id) VALUES (?, ?)";
-    private static final String UPDATE_NAME = "UPDATE item SET name = ? WHERE id = ?";
-    private static final String UPDATE_DESCRIPTION = "UPDATE item SET description = ? WHERE id = ?";
-    private static final String UPDATE_AVAILABLE = "UPDATE item SET available = ? WHERE id = ?";
-    private static final String DELETE_QUERY = "DELETE FROM item WHERE id=?";
-    private static final String SEARCH_ITEM_BY_NAME = "SELECT * FROM item WHERE UPPER(name) LIKE CONCAT('%',?,'%') OR UPPER(description) LIKE CONCAT('%',?,'%')";
-    private static final String FIND_ID_ITEMS_USER = "SELECT item_id FROM user_items WHERE user_id = ?";
-
-    public ItemRepositoryImpl(JdbcTemplate jdbc, RowMapper<Item> mapper) {
-        super(jdbc, mapper);
-    }
+@RequiredArgsConstructor
+public class ItemRepositoryImpl implements ItemRepository {
+    private long counterId = 0;
+    private final Map<Long, Item> items = new HashMap<>();
+    private final Map<Long, Long> itemsUser = new HashMap<>();
 
     @Override
     public void save(Item item, long userId) {
-        long id = insert(
-                INSERT_QUERY,
-                item.getName(),
-                item.getDescription(),
-                item.getAvailable()
-        );
+        final long id = ++counterId;
         item.setId(id);
-        jdbc.update(INSERT_ITEM_USER_QUERY, userId, item.getId());
+        items.put(id, item);
+        itemsUser.put(id, userId);
     }
 
     @Override
     public void update(Item item) {
+        Item itemStorage = items.get(item.getId());
         if (item.getName() != null) {
-            jdbc.update(UPDATE_NAME, item.getName(), item.getId());
+            itemStorage.setName(item.getName());
+            items.put(itemStorage.getId(), itemStorage);
         }
         if (item.getDescription() != null) {
-            jdbc.update(UPDATE_DESCRIPTION, item.getDescription(), item.getId());
+            itemStorage.setDescription(item.getDescription());
+            items.put(itemStorage.getId(), itemStorage);
         }
         if (item.getAvailable() != null) {
-            jdbc.update(UPDATE_AVAILABLE, item.getAvailable(), item.getId());
+            itemStorage.setAvailable(item.getAvailable());
+            items.put(itemStorage.getId(), itemStorage);
         }
     }
 
     @Override
     public Item findById(Long itemId) {
-        return findOne(FIND_BY_ID_QUERY, itemId)
-                .orElseThrow(() -> new IllegalArgumentException("Предмет с ID: " + itemId + " не найден!"));
+        Item item = items.get(itemId);
+        if (item == null) {
+            throw new IllegalArgumentException("Предмет с ID: " + itemId + " не найден!");
+        }
+        return item;
     }
 
     @Override
     public Collection<Item> getItemsUser(long userId) {
-        return jdbc.query(FIND_ALL_ITEMS_QUERY, mapper, userId);
+        Collection<Item> itemsUsers = new ArrayList<>();
+        for (Map.Entry<Long, Long> entry : itemsUser.entrySet()) {
+            if (entry.getValue() == userId) {
+                itemsUsers.add(items.get(entry.getKey()));
+            }
+        }
+        return itemsUsers;
+
     }
 
     @Override
     public void delete(long itemId) {
-        delete(DELETE_QUERY, itemId);
+        items.remove(itemId);
+        itemsUser.remove(itemId);
     }
 
     @Override
     public Collection<Item> searchItemByName(String text) {
-        return jdbc.query(SEARCH_ITEM_BY_NAME, mapper, text, text);
+        Collection<Item> searchItem = new ArrayList<>();
+        for (Item item : items.values()) {
+            if (item.getName().toUpperCase().contains(text.toUpperCase())) {
+                searchItem.add(item);
+            } else if (item.getDescription().toUpperCase().contains(text.toUpperCase())) {
+                searchItem.add(item);
+            }
+        }
+        return searchItem;
     }
 
     @Override
     public List<Long> getIdItemsUser(long userId) {
-        return jdbc.queryForList(FIND_ID_ITEMS_USER, Long.class, userId);
+        List<Long> itemUser = new ArrayList<>();
+        for (Map.Entry<Long, Long> entry : itemsUser.entrySet()) {
+            if (entry.getValue() == userId) {
+                itemUser.add(entry.getKey());
+            }
+        }
+        return itemUser;
     }
 }

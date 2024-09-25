@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user.service;
 
-import ru.practicum.shareit.user.controller.mapper.model.UserDto;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.Collection;
 

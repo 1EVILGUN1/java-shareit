@@ -1,63 +1,58 @@
 package ru.practicum.shareit.user.repository.impl;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.base.BaseRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.*;
 
+
 @Repository
-public class UserRepositoryImpl extends BaseRepository<User> implements UserRepository {
-    private static final String FIND_ALL_QUERY = "SELECT * FROM users";
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
-    private static final String INSERT_QUERY = "INSERT INTO users (name, email) VALUES (?, ?)";
-    private static final String UPDATE_NAME = "UPDATE users SET name = ? WHERE id = ?";
-    private static final String UPDATE_EMAIL = "UPDATE users SET email = ? WHERE id = ?";
-    private static final String DELETE_QUERY = "DELETE FROM users WHERE id=?";
+@RequiredArgsConstructor
+public class UserRepositoryImpl implements UserRepository {
+    private long counterId = 0;
+    private final Map<Long, User> users = new HashMap<>();
 
-
-    public UserRepositoryImpl(JdbcTemplate jdbc, RowMapper<User> mapper) {
-        super(jdbc, mapper);
-    }
 
     @Override
     public Collection<User> getAll() {
-        return findMany(FIND_ALL_QUERY);
+        return users.values();
     }
 
     @Override
     public User findById(Long id) {
-        return findOne(FIND_BY_ID_QUERY, id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с таким id " + id + " не найден"));
+        User user = users.get(id);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с таким id " + id + " не найден");
+        }
+        return user;
     }
 
     @Override
     public User save(User user) {
-        long id = insert(
-                INSERT_QUERY,
-                user.getName(),
-                user.getEmail()
-        );
+        final long id = ++counterId;
         user.setId(id);
+        users.put(id, user);
         return user;
     }
 
     @Override
     public void update(Long userId, User user) {
+        User userStorage = users.get(userId);
         if (user.getName() != null) {
-            jdbc.update(UPDATE_NAME, user.getName(), userId);
+            userStorage.setName(user.getName());
+            users.put(userId, userStorage);
         }
         if (user.getEmail() != null) {
-            jdbc.update(UPDATE_EMAIL, user.getEmail(), userId);
+            userStorage.setEmail(user.getEmail());
+            users.put(userId, userStorage);
         }
     }
 
     @Override
     public void delete(Long id) {
-        delete(DELETE_QUERY, id);
+        users.remove(id);
     }
 }

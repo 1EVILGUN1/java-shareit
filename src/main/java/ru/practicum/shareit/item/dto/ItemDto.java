@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.controller.mapper.model;
+package ru.practicum.shareit.item.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
