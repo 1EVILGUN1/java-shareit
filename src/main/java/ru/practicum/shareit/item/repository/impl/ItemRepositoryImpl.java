@@ -16,10 +16,10 @@ public class ItemRepositoryImpl implements ItemRepository {
     private final Map<Long, Item> items = new HashMap<>();
 
     @Override
-    public void save(Item item) {
-        final long id = ++counterId;
-        item.setId(id);
-        items.put(id, item);
+    public Item save(Item item) {
+        item.setId(++counterId);
+        items.put(item.getId(), item);
+        return item;
     }
 
     @Override

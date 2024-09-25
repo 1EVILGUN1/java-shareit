@@ -34,8 +34,7 @@ public class ItemServiceImpl implements ItemService {
         }
         Item item = ItemMapper.mapToItem(itemDto);
         item.setUserId(userId);
-        itemRepository.save(item);
-        return ItemMapper.mapToItemDto(item);
+        return ItemMapper.mapToItemDto(itemRepository.save(item));
     }
 
     @Override
