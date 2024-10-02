@@ -68,4 +68,13 @@ public class ErrorHandler {
     public Map<String, String> notFoundException(final NotFoundException e) {
         return Map.of("error", e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<Map<String, String>> handleInternalServerErrorException(final InternalServerErrorException e) {
+        log.error("Ошибка! {}", e.getMessage());
+        return new ResponseEntity<>(
+                Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR
+        );
+    }
 }

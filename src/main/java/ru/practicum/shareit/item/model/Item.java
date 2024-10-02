@@ -1,12 +1,22 @@
 package ru.practicum.shareit.item.model;
 
+import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import ru.practicum.shareit.user.model.User;
 
 @Data
+@NoArgsConstructor(force = true)
+@Entity
+@Table(name = "item")
 public class Item {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long userId;
     private String name;
     private String description;
     private Boolean available;
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 }

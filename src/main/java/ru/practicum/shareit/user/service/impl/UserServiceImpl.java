@@ -3,6 +3,8 @@ package ru.practicum.shareit.user.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -11,59 +13,55 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
-    private final ItemRepository itemRepository;
+    private final UserRepository repository;
 
     @Override
     public Collection<UserDto> getAll() {
-        Collection<User> result = userRepository.getAll();
-        for (User user : result) {
-            List<Long> items = itemRepository.getIdItemsUser(user.getId());
-            user.setItems(new HashSet<>(items));
-        }
-        return UserMapper.mapToUserDtoList(result);
+        return repository.findAll().stream()
+                .map(UserMapper::mapToUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public UserDto save(UserDto userDto) {
         User user = UserMapper.mapToUser(userDto);
-        return UserMapper.mapToUserDto(userRepository.save(user));
+        return UserMapper.mapToUserDto(repository.save(user));
     }
 
     @Override
+    @Transactional
     public UserDto update(long userId, UserDto userDto) {
-        findById(userId);
+        User userFromDb =checkUserDtoById(userId);
         User user = UserMapper.mapToUser(userDto);
-        for (User dbUser : userRepository.getAll()) {
-            if (dbUser.equals(user) && dbUser.getId() != userId) {
-                throw new IllegalArgumentException("Пользователь с таким email уже существует!");
-            }
-        }
-        userRepository.update(userId, user);
-        User updatedUser = userRepository.findById(userId);
-        return UserMapper.mapToUserDto(updatedUser);
+        userFromDb.setEmail(user.getEmail()!=null ? user.getEmail() : userFromDb.getEmail());
+        userFromDb.setName(user.getName()!=null ? user.getName() : userFromDb.getName());
+        User updateUser = repository.save(userFromDb);
+        return UserMapper.mapToUserDto(updateUser);
     }
 
     @Override
+    @Transactional
     public UserDto delete(Long id) {
-        findById(id);
-        User user = userRepository.findById(id);
-        userRepository.delete(id);
+        User user = checkUserDtoById(id);
+        repository.deleteById(id);
         return UserMapper.mapToUserDto(user);
     }
 
     @Override
     public UserDto findById(long id) {
-        User user = userRepository.findById(id);
-        List<Long> items = itemRepository.getIdItemsUser(id);
-        user.setItems(new HashSet<>(items));
+        User user = checkUserDtoById(id);
         return UserMapper.mapToUserDto(user);
+    }
+
+    private User checkUserDtoById(long id) {
+        return repository.findById(id).orElseThrow(() ->
+                new NotFoundException(String.format("Пользователь с ID %d не найден", id)));
     }
 }

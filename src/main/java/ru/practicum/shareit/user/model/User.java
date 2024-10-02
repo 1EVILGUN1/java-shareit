@@ -1,28 +1,19 @@
 package ru.practicum.shareit.user.model;
 
+import jakarta.persistence.*;
 import lombok.Data;
-
-import java.util.Objects;
-import java.util.Set;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor(force = true)
+@Entity
+@Table(name = "users")
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @Column(unique = true)
     private String email;
-    private Set<Long> items;
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        User user = (User) object;
-        return Objects.equals(email, user.email);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(email);
-    }
 }
 
