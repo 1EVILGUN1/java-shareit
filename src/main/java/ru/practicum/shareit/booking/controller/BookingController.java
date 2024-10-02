@@ -20,7 +20,7 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<BookingDto> saveBooking(@Valid @RequestBody BookingDto booking,
-                                                 @RequestHeader("X-Sharer-User-Id") long userId) {
+                                                  @RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Получен запрос POST на добавление бронирования");
         BookingDto savedBooking = bookingService.saveBooking(booking, userId);
         log.info("Бронь с ID: {} успешно добавлена!", savedBooking);
@@ -39,7 +39,7 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public ResponseEntity<BookingDto> findBookingById(@PathVariable long bookingId,
-                                                     @RequestHeader("X-Sharer-User-Id") long userId) {
+                                                      @RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Получен запрос GET на получение брони по ID: {}", bookingId);
         BookingDto bookingDto = bookingService.findBookingById(bookingId, userId);
         log.info("Вывод брони с ID: {},\n {}", bookingId, bookingDto);
@@ -52,7 +52,7 @@ public class BookingController {
             @RequestHeader("X-Sharer-User-Id") long bookerId) {
         log.info("Получен запрос GET на получение всех бронирований пользователя c ID: {}", bookerId);
         Collection<BookingDto> bookingDtos = bookingService.userBookings(state, bookerId);
-        log.info("Вывод всех бронирований {}",bookingDtos);
+        log.info("Вывод всех бронирований {}", bookingDtos);
         return bookingDtos;
     }
 
@@ -62,7 +62,7 @@ public class BookingController {
             @RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Получен запрос GET на получение всех бронирований вещей принадлежащих пользователю с ID: {}", userId);
         Collection<BookingDto> bookingDtos = bookingService.allBookingsByUserOwner(state, userId);
-        log.info("Вывод всех бронирований {}",bookingDtos);
+        log.info("Вывод всех бронирований {}", bookingDtos);
         return bookingDtos;
     }
 }

@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +45,7 @@ public class ItemController {
     public ResponseEntity<ItemDto> getItemById(@RequestHeader("X-Sharer-User-Id") long userId,
                                                @PathVariable(value = "itemId") long itemId) {
         log.info("Получен запрос GET на вывод предмета с ID: {} пользователя с ID: {}", itemId, userId);
-        ItemDto itemDto = itemService.findById(itemId,userId);
+        ItemDto itemDto = itemService.findById(itemId, userId);
         log.info("Вывод предмета с ID: {} пользователя с ID: {}", itemDto.getId(), userId);
         return new ResponseEntity<>(itemDto, HttpStatus.OK);
     }
@@ -74,7 +73,7 @@ public class ItemController {
     @ResponseStatus(HttpStatus.OK)
     public Collection<ItemDto> searchItemByText(@RequestParam Optional<String> text,
                                                 @RequestHeader("X-Sharer-User-Id") Optional<Long> userId) {
-        if (text.isPresent()&&userId.isPresent()) {
+        if (text.isPresent() && userId.isPresent()) {
             log.info("Получен запрос GET на получение предметов по результатам поиска: {}", text);
             Collection<ItemDto> itemByText = itemService.searchItemByName(text.get(), userId.get());
             log.info("Вывод предметов по поиску {}", itemByText);
@@ -85,8 +84,8 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<CommentDto> saveComment(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                 @PathVariable(value = "itemId") long itemId,
-                                                 @Valid @RequestBody CommentDto commentDto) {
+                                                  @PathVariable(value = "itemId") long itemId,
+                                                  @Valid @RequestBody CommentDto commentDto) {
         log.info("Получен запрос POST на добовление комментария вещи с ID: {} пользователем с ID: {}", itemId, userId);
         CommentDto saveCommentDto = itemService.saveComment(commentDto, itemId, userId);
         log.info("Комментарий с ID: {} успешно добавлен! \n {}", commentDto.getId(), saveCommentDto);
