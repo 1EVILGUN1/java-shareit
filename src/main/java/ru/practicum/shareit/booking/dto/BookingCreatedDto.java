@@ -1,9 +1,9 @@
 package ru.practicum.shareit.booking.dto;
 
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
-import javax.validation.constraints.Future;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter

@@ -1,8 +1,9 @@
 package ru.practicum.shareit.user.dto;
 
+import jakarta.validation.constraints.Email;
 import lombok.Getter;
 
-import javax.validation.constraints.Email;
+
 
 @Getter
 public class UserUpdateDto {
