@@ -1,13 +1,10 @@
 package ru.practicum.shareit.user.model;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
-
-import javax.persistence.*;
 
 @Data
-@SuperBuilder
 @NoArgsConstructor(force = true)
 @Entity
 @Table(name = "users")
