@@ -1,15 +1,20 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
-@Data
+import java.util.Objects;
+
 @SuperBuilder
 @NoArgsConstructor(force = true)
 @Entity
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Getter
+@Setter
+@ToString
 @Table(name = "users")
 public class User {
     @Id
@@ -18,5 +23,18 @@ public class User {
     private String name;
     @Column(unique = true)
     private String email;
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        User user = (User) object;
+        return id == user.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
 

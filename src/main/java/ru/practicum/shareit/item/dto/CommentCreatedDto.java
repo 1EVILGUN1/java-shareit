@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.Getter;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 @Getter
 public class CommentCreatedDto {

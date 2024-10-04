@@ -9,7 +9,8 @@ import ru.practicum.shareit.booking.dto.BookingCreatedDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
+
 import java.util.Collection;
 
 

@@ -10,7 +10,8 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserUpdatedDto;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
+
 import java.util.Collection;
 
 @Slf4j
@@ -31,7 +32,7 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public ResponseEntity<UserDto> update(@Valid @RequestBody UserUpdatedDto userUpdatedDto,
-                                              @PathVariable(value = "userId") long userId) {
+                                          @PathVariable(value = "userId") long userId) {
         log.info("Получен запрос PATCH на обновление данных пользователя с ID: {}", userId);
         UserDto userDto = userService.update(userId, userUpdatedDto);
         log.info("Данные пользователя с ID: {} успешно обновлены! \n {}", userDto.getId(), userDto);
