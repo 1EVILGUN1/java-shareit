@@ -50,9 +50,9 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException(
                     String.format("Пользователь с ID: %d не владеет вещью с ID: %d", userId, itemId));
         }
-        itemFromDb.setAvailable(item.getAvailable()!=null ? item.getAvailable() : itemFromDb.getAvailable());
-        itemFromDb.setDescription(item.getDescription()!=null ? item.getDescription() : itemFromDb.getDescription());
-        itemFromDb.setName(item.getName()!=null ? item.getName() : itemFromDb.getName());
+        itemFromDb.setAvailable(item.getAvailable() != null ? item.getAvailable() : itemFromDb.getAvailable());
+        itemFromDb.setDescription(item.getDescription() != null ? item.getDescription() : itemFromDb.getDescription());
+        itemFromDb.setName(item.getName() != null ? item.getName() : itemFromDb.getName());
         itemRepository.save(itemFromDb);
         return ItemMapper.mapToItemDto(itemFromDb);
     }
