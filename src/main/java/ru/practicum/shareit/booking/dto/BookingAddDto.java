@@ -5,14 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.enums.State;
 import ru.practicum.shareit.booking.enums.Status;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Data
-public class BookingDto {
+public class BookingAddDto {
 
     private Long id;
 
@@ -22,7 +21,8 @@ public class BookingDto {
     @NotNull(message = "Время окончания бронирования не может быть null")
     private LocalDateTime end;
 
-    private Item item;
+    @NotNull(message = "Бронируемую вещь необходимо указать")
+    private Long itemId;
 
     private User booker;
 
