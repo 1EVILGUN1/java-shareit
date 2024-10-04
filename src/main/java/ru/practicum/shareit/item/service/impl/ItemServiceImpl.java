@@ -59,7 +59,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItemById(long itemId, long userId) {
-        userService.checkUserDto(userId);
         Item item = checkItemDto(itemId);
         return getLastAndNextBookings(item, userId);
     }
