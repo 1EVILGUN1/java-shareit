@@ -1,62 +1,65 @@
 package ru.practicum.shareit.user.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserUpdatedDto;
 import ru.practicum.shareit.user.service.UserService;
 
+import javax.validation.Valid;
 import java.util.Collection;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@ResponseStatus(HttpStatus.BAD_REQUEST)
 @RequestMapping(path = "/users")
 public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserDto> create(@Valid @RequestBody UserDto user) {
+    public ResponseEntity<UserDto> create(@Valid @RequestBody UserCreateDto user) {
         log.info("Получен запрос POST на добавление пользователя");
-        UserDto userDto = userService.save(user);
-        log.info("Пользователь с Id: {} успешно добавлен!", userDto.getId());
+        UserDto userDto = userService.create(user);
+        log.info("Пользователь с Id: {} успешно добавлен! \n {}", userDto.getId(), userDto);
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<UserDto> update(@RequestBody UserDto user,
-                                          @PathVariable long userId) {
+    public ResponseEntity<UserDto> update(@Valid @RequestBody UserUpdatedDto userUpdatedDto,
+                                              @PathVariable(value = "userId") long userId) {
         log.info("Получен запрос PATCH на обновление данных пользователя с ID: {}", userId);
-        UserDto userDto = userService.update(userId, user);
-        log.info("Данные пользователя с ID: {} успешно обновлены!", userDto.getId());
+        UserDto userDto = userService.update(userId, userUpdatedDto);
+        log.info("Данные пользователя с ID: {} успешно обновлены! \n {}", userDto.getId(), userDto);
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Collection<UserDto>> getAll() {
+    public ResponseEntity<Collection<UserDto>> getUsers() {
         log.info("Получен запрос GET на получение всех пользователей");
-        Collection<UserDto> users = userService.getAll();
-        log.info("Вывод всех пользователей = " + users);
-        return new ResponseEntity<>(users, HttpStatus.OK);
+        Collection<UserDto> userDtos = userService.getUsers();
+        log.info("Вывод всех пользователей {}", userDtos);
+        return new ResponseEntity<>(userDtos, HttpStatus.OK);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserDto> getFindById(@PathVariable(value = "userId") long userId) {
-        log.info("Получен запрос GET на получение всех предметов пользователя с ID: {}", userId);
-        UserDto userDto = userService.findById(userId);
-        log.info("Вывод предметов пользователя с ID: {}", userDto.getId());
+    public ResponseEntity<UserDto> getUserById(@PathVariable(value = "userId") long userId) {
+        log.info("Получен запрос GET на вывод пользователя с ID: {}", userId);
+        UserDto userDto = userService.getUserById(userId);
+        log.info("Вывод пользователя с ID: {} \n {}", userDto.getId(), userDto);
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<UserDto> delete(@PathVariable(value = "userId") long userId) {
         log.info("Получен запрос DELETE на удаление пользователя с ID: {}", userId);
-        UserDto userDto = userService.delete(userId);
-        log.info("Пользователь с ID: {} успешно удален!", userDto.getId());
+        UserDto userDto = userService.remove(userId);
+        log.info("Пользователь с ID: {} успешно удален! \n {}", userDto.getId(), userDto);
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 }
