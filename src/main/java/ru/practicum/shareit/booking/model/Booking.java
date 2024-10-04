@@ -10,15 +10,12 @@ import ru.practicum.shareit.user.model.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @SuperBuilder
 @NoArgsConstructor
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Getter
-@Setter
-@ToString
+@Data
 @Table(name = "bookings")
 public class Booking {
     @Id
@@ -36,17 +33,4 @@ public class Booking {
     private User booker;
     @Enumerated(EnumType.ORDINAL)
     private Status status;
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        Booking booking = (Booking) object;
-        return id == booking.id;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
 }
