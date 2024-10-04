@@ -13,7 +13,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
