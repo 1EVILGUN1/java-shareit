@@ -50,9 +50,9 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException(
                     String.format("Пользователь с ID: %d не владеет вещью с ID: %d", userId, itemId));
         }
-        itemFromDb.setAvailable(item.getAvailable() != null ? item.getAvailable() : itemFromDb.getAvailable());
-        itemFromDb.setDescription(item.getDescription() != null ? item.getDescription() : itemFromDb.getDescription());
-        itemFromDb.setName(item.getName() != null ? item.getName() : itemFromDb.getName());
+        itemFromDb.setAvailable(item.getAvailable()!=null ? item.getAvailable() : itemFromDb.getAvailable());
+        itemFromDb.setDescription(item.getDescription()!=null ? item.getDescription() : itemFromDb.getDescription());
+        itemFromDb.setName(item.getName()!=null ? item.getName() : itemFromDb.getName());
         itemRepository.save(itemFromDb);
         return ItemMapper.mapToItemDto(itemFromDb);
     }
@@ -104,30 +104,27 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public CommentDto addComment(CommentCreatedDto commentCreateDto, long itemId, long userId) {
-        Comment comment = CommentMapper.mapCommentCreatedDtoToComment(commentCreateDto);
+    public CommentDto addComment(CommentCreatedDto commentCreatedDto, long itemId, long userId) {
+        Comment comment = CommentMapper.mapCommentCreatedDtoToComment(commentCreatedDto);
         Item item = checkItemDto(itemId);
         User user = userService.checkUserDto(userId);
         List<Booking> bookings = bookingRepository.findByItemIdAndBookerId(itemId, userId);
-
         if (bookings.isEmpty()) {
             throw new BadRequestException("Только арендаторы могут оставлять отзыв!");
         }
-
-        if (bookings.stream().anyMatch(b -> Status.REJECTED == b.getStatus())) {
-            throw new BadRequestException("Нельзя оставить отзыв, аренда невозможна!");
+        for (Booking booking : bookings) {
+            if (Status.REJECTED == booking.getStatus()) {
+                throw new BadRequestException("Нельзя оставить отзыв, есть аренда невозможна!");
+            }
         }
-
-        Booking earliestBooking = bookings.stream().min(Comparator.comparing(Booking::getStart)).orElseThrow();
-        if (earliestBooking.getStart().isAfter(comment.getCreated())) {
+        Optional<Booking> booking = bookings.stream().min(Comparator.comparing(Booking::getStart));
+        if (booking.get().getStart().isAfter(comment.getCreated())) {
             throw new BadRequestException("Нельзя оставлять отзыв до аренды!");
         }
-
         comment.setItem(item);
         comment.setAuthor(user);
         return CommentMapper.mapToCommentDto(commentRepository.save(comment));
     }
-
 
     private ItemDto getLastAndNextBookings(Item item, long userId) {
         List<Booking> lastBookings = bookingRepository.findAllByItemIdAndEndBeforeOrderByEndDesc(

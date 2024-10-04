@@ -20,8 +20,6 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Map;
-import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -82,44 +80,58 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Collection<BookingDto> getUserBookings(String state, long userId) {
         userService.checkUserDto(userId);
-        Map<String, Function<Long, Collection<Booking>>> stateToRepositoryCalls = Map.of(
-                "ALL", id -> repository.findAllByBookerIdOrderByStartDesc(id),
-                "PAST", id -> repository.findAllByEndBeforeAndBookerIdOrderByStartDesc(LocalDateTime.now(), id),
-                "FUTURE", id -> repository.findAllByStartAfterAndBookerIdOrderByStartDesc(LocalDateTime.now(), id),
-                "CURRENT", id -> repository.findAllByEndAfterAndStartBeforeAndBookerIdOrderByStartDesc(
-                        LocalDateTime.now(), LocalDateTime.now(), id),
-                "WAITING", id -> repository.findAllByBookerIdAndStatusOrderByStartDesc(id, Status.WAITING),
-                "REJECTED", id -> repository.findAllByBookerIdAndStatusOrderByStartDesc(id, Status.REJECTED)
-        );
-
-        Function<Long, Collection<Booking>> repositoryCall = stateToRepositoryCalls.get(state);
-        if (repositoryCall == null) {
-            throw new InternalServerErrorException("Unknown state: " + state);
+        switch (state) {
+            case "ALL":
+                return BookingMapper.mapToBookingDtoList(
+                        repository.findAllByBookerIdOrderByStartDesc(userId));
+            case "PAST":
+                return BookingMapper.mapToBookingDtoList(
+                        repository.findAllByEndBeforeAndBookerIdOrderByStartDesc(LocalDateTime.now(), userId));
+            case "FUTURE":
+                return BookingMapper.mapToBookingDtoList(
+                        repository.findAllByStartAfterAndBookerIdOrderByStartDesc(LocalDateTime.now(), userId));
+            case "CURRENT":
+                return BookingMapper.mapToBookingDtoList(
+                        repository.findAllByEndAfterAndStartBeforeAndBookerIdOrderByStartDesc(
+                                LocalDateTime.now(), LocalDateTime.now(), userId));
+            case "WAITING":
+                return BookingMapper.mapToBookingDtoList(
+                        repository.findAllByBookerIdAndStatusOrderByStartDesc(userId, Status.WAITING));
+            case "REJECTED":
+                return BookingMapper.mapToBookingDtoList(
+                        repository.findAllByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED));
+            default:
+                throw new InternalServerErrorException("Unknown state: " + state);
         }
-
-        return BookingMapper.mapToBookingDtoList(repositoryCall.apply(userId));
     }
 
     @Override
     public Collection<BookingDto> getAllBookingsByUserOwner(String state, long userId) {
         userService.checkUserDto(userId);
-        Map<String, Function<Long, Collection<Booking>>> stateToRepositoryCalls = Map.of(
-                "ALL", id -> repository.findAllByItemUserIdOrderByStartDesc(id),
-                "PAST", id -> repository.findByEndBeforeAndItemUserIdOrderByStartDesc(LocalDateTime.now(), id),
-                "FUTURE", id -> repository.findAllByItemUserIdAndStartAfterOrderByStartDesc(id, LocalDateTime.now()),
-                "CURRENT", id -> repository.findAllByEndAfterAndStartBeforeAndItemUserIdOrderByStartDesc(
-                        LocalDateTime.now(), LocalDateTime.now(), id),
-                "WAITING", id -> repository.findAllByItemUserIdAndStatusOrderByStartDesc(id, Status.WAITING),
-                "REJECTED", id -> repository.findAllByItemUserIdAndStatusOrderByStartDesc(id, Status.REJECTED)
-        );
-
-        Function<Long, Collection<Booking>> repositoryCall = stateToRepositoryCalls.get(state);
-        if (repositoryCall == null) {
-            throw new InternalServerErrorException("Unknown state: " + state);
+        switch (state) {
+            case "ALL":
+                return BookingMapper.mapToBookingDtoList(
+                        repository.findAllByItemUserIdOrderByStartDesc(userId));
+            case "PAST":
+                return BookingMapper.mapToBookingDtoList(
+                        repository.findByEndBeforeAndItemUserIdOrderByStartDesc(LocalDateTime.now(), userId));
+            case "FUTURE":
+                return BookingMapper.mapToBookingDtoList(
+                        repository.findAllByItemUserIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now()));
+            case "CURRENT":
+                return BookingMapper.mapToBookingDtoList(
+                        repository.findAllByEndAfterAndStartBeforeAndItemUserIdOrderByStartDesc(
+                                LocalDateTime.now(), LocalDateTime.now(), userId));
+            case "WAITING":
+                return BookingMapper.mapToBookingDtoList(
+                        repository.findAllByItemUserIdAndStatusOrderByStartDesc(userId, Status.WAITING));
+            case "REJECTED":
+                return BookingMapper.mapToBookingDtoList(
+                        repository.findAllByItemUserIdAndStatusOrderByStartDesc(userId, Status.REJECTED));
+            default:
+                throw new InternalServerErrorException("Unknown state: " + state);
         }
-        return BookingMapper.mapToBookingDtoList(repositoryCall.apply(userId));
     }
-
 
     @Override
     public Booking checkBookingDto(long bookingId) {
