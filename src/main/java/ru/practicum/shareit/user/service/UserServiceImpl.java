@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.validators.UserValidator;
 import ru.practicum.shareit.user.model.User;
@@ -13,6 +14,7 @@ import java.util.List;
 @Slf4j
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
@@ -23,6 +25,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User save(User user) {
         UserValidator.checkEmailIsUnique(repository.findUserByEmail(user.getEmail()));
         log.info("Создание пользователя: {} ", user.getName());
@@ -30,6 +33,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User update(Long id, User updatedUser) {
         UserValidator.validateId(id);
         log.info("Обновление пользователя с id: {} ", id);
@@ -57,6 +61,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User delete(Long id) {
         User user = findUserById(id);
         repository.deleteById(id);

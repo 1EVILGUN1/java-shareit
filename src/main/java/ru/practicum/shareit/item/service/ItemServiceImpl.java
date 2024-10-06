@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ItemDoNotBelongToUser;
@@ -26,6 +27,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 @Slf4j
 public class ItemServiceImpl implements ItemService {
 
@@ -35,6 +37,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
 
     @Override
+    @Transactional
     public Item save(Long userId, ItemDto dto) {
         UserValidator.validateId(userId);
         log.info("Проверка на наличие пользователя с id: {} ", userId);
@@ -47,6 +50,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Item update(Long userId, Long itemId, ItemDto dto) {
         UserValidator.validateId(userId);
         ItemValidator.validateId(itemId);
@@ -97,6 +101,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Comment addComment(Long authorId, Long itemId, CommentDto dto) {
         log.info("Добавление комментария для предмета с id= " + itemId);
         UserValidator.validateId(authorId);

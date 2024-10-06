@@ -1,14 +1,14 @@
 package ru.practicum.shareit.booking.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.dto.BookingAddDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.enums.State;
-import ru.practicum.shareit.booking.model.Booking;
 
 import java.util.List;
 
@@ -21,9 +21,9 @@ public class BookingController {
     private final BookingService service;
 
     @PostMapping
-    public Booking add(@RequestHeader("X-Sharer-User-Id") Long userId, @Validated @RequestBody BookingAddDto dto) {
+    public BookingDto add(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody BookingAddDto dto) {
         log.info("POST Запрос на добавление брони пользователем с ID: {} \n {}", userId, dto);
-        Booking addedBooking = service.addBooking(dto, userId);
+        BookingDto addedBooking = BookingMapper.mapToBookingDto(service.addBooking(dto, userId));
         log.info("Запрос на добавление брони выполнен: {}", addedBooking);
         return addedBooking;
     }

@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -21,7 +20,6 @@ public class Item {
     private Long id;
 
     @NotBlank(message = "Название не может быть пустым")
-    @NotNull(message = "Название не может быть Null")
     @Column(nullable = false)
     private String name;
 

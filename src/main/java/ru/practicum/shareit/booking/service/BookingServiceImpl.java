@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.validators.BookingValidator;
@@ -25,6 +26,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 @Slf4j
 public class BookingServiceImpl implements BookingService {
 
@@ -33,6 +35,7 @@ public class BookingServiceImpl implements BookingService {
     private final ItemService itemService;
 
     @Override
+    @Transactional
     public Booking addBooking(BookingAddDto dto, Long userId) {
         BookingValidator.timeCheck(dto, LocalDateTime.now());
         log.info("Запуск записи бронирования");
@@ -50,6 +53,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public BookingDto changeStatus(Long id, Boolean approved, Long userId) {
         log.info("Смена статуса бронирования id= " + id);
         BookingValidator.validateId(id);
@@ -86,25 +90,18 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> findAllBookingsOfBooker(Long userId, State state) {
         UserValidator.validateId(userId);
-        log.info("Проверка наличия пользователя в БД при получении списка всех бронирований");
+        log.debug("Проверка наличия пользователя в БД при получении списка всех бронирований");
         userService.findUserById(userId);
         log.info("STATE " + state);
-        List<Booking> bookingList;
-        switch (state) {
-            case ALL -> bookingList = repository.findAllBookingsByBooker_idOrderByStartDesc(userId);
-            case CURRENT -> bookingList = repository
-                    .findAllByBooker_idAndStartBeforeAndEndAfterOrderByStartDesc(userId,
+        List<Booking> bookingList = switch (state) {
+            case ALL -> repository.findAllBookingsByBooker_idOrderByStartDesc(userId);
+            case CURRENT -> repository.findAllByBooker_idAndStartBeforeAndEndAfterOrderByStartDesc(userId,
                             LocalDateTime.now(), LocalDateTime.now());
-            case PAST -> bookingList = repository
-                    .findAllByBooker_idAndEndAfterOrderByStartDesc(userId, LocalDateTime.now());
-            case FUTURE -> bookingList = repository
-                    .findAllByBooker_idAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
-            case WAITING ->
-                    bookingList = repository.findAllByBooker_idAndStatusOrderByStartDesc(userId, Status.WAITING);
-            case REJECTED ->
-                    bookingList = repository.findAllByBooker_idAndStatusOrderByStartDesc(userId, Status.REJECTED);
-            default -> throw new IllegalArgumentException("Неизвестное состояние: " + state);
-        }
+            case PAST -> repository.findAllByBooker_idAndEndAfterOrderByStartDesc(userId, LocalDateTime.now());
+            case FUTURE -> repository.findAllByBooker_idAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
+            case WAITING -> repository.findAllByBooker_idAndStatusOrderByStartDesc(userId, Status.WAITING);
+            case REJECTED -> repository.findAllByBooker_idAndStatusOrderByStartDesc(userId, Status.REJECTED);
+        };
         if (bookingList.isEmpty()) {
             throw new ItemDoNotBelongToUser("Брони не существует для данного пользователя");
         }
@@ -116,22 +113,15 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> findAllBookingsOfOwner(Long userId, State state) {
         UserValidator.validateId(userId);
-        List<Booking> bookingList;
-        switch (state) {
-            case ALL -> bookingList = repository.findAllByItem_Owner_idOrderByStartDesc(userId);
-            case CURRENT -> bookingList = repository
-                    .findAllByItem_Owner_idAndStartBeforeAndEndAfterOrderByStartDesc(userId,
+        List<Booking> bookingList = switch (state) {
+            case ALL -> repository.findAllByItem_Owner_idOrderByStartDesc(userId);
+            case CURRENT -> repository.findAllByItem_Owner_idAndStartBeforeAndEndAfterOrderByStartDesc(userId,
                             LocalDateTime.now(), LocalDateTime.now());
-            case PAST -> bookingList = repository
-                    .findAllByItem_Owner_idAndEndAfterOrderByStartDesc(userId, LocalDateTime.now());
-            case FUTURE -> bookingList = repository
-                    .findAllByItem_Owner_idAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
-            case WAITING -> bookingList = repository
-                    .findAllByItem_Owner_idAndStatusOrderByStartDesc(userId, Status.WAITING);
-            case REJECTED -> bookingList = repository
-                    .findAllByItem_Owner_idAndStatusOrderByStartDesc(userId, Status.REJECTED);
-            default -> throw new IllegalArgumentException("Неизвестное состояние: " + state);
-        }
+            case PAST -> repository.findAllByItem_Owner_idAndEndAfterOrderByStartDesc(userId, LocalDateTime.now());
+            case FUTURE -> repository.findAllByItem_Owner_idAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
+            case WAITING -> repository.findAllByItem_Owner_idAndStatusOrderByStartDesc(userId, Status.WAITING);
+            case REJECTED -> repository.findAllByItem_Owner_idAndStatusOrderByStartDesc(userId, Status.REJECTED);
+        };
         if (bookingList.isEmpty()) {
             throw new ItemDoNotBelongToUser("Брони не существует для данного пользователя");
         }

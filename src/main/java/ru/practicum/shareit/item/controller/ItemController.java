@@ -1,14 +1,13 @@
 package ru.practicum.shareit.item.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
@@ -23,20 +22,20 @@ public class ItemController {
     private final BookingService bookingService;
 
     @PostMapping
-    public Item save(@RequestHeader("X-Sharer-User-Id") Long userId,
-                     @Validated @RequestBody ItemDto dto) {
+    public ItemDto save(@RequestHeader("X-Sharer-User-Id") Long userId,
+                        @Valid @RequestBody ItemDto dto) {
         log.info("POST Запрос на добавление вещи пользователем с ID {} \n {}", userId, dto);
-        Item savedItem = service.save(userId, dto);
+        ItemDto savedItem = ItemMapper.mapToDto(service.save(userId, dto));
         log.info("Вещь была добавлена {}", savedItem);
         return savedItem;
     }
 
     @PatchMapping("/{itemId}")
-    public Item update(@RequestHeader("X-Sharer-User-Id") Long userId,
-                       @PathVariable("itemId") Long id,
-                       @RequestBody ItemDto dto) {
+    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId,
+                          @PathVariable("itemId") Long id,
+                          @RequestBody ItemDto dto) {
         log.info("PATCH Запрос на обновление вещи ID {}, пользователя ID {} \n {}", id, userId, dto);
-        Item updatedItem = service.update(userId, id, dto);
+        ItemDto updatedItem = ItemMapper.mapToDto(service.update(userId, id, dto));
         log.info("Запрос на обновление вещи выполнен {}", updatedItem);
         return updatedItem;
     }
